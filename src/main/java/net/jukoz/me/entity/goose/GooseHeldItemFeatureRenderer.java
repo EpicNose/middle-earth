@@ -19,10 +19,10 @@ import net.minecraft.item.*;
 import net.minecraft.util.math.RotationAxis;
 
 @Environment(EnvType.CLIENT)
-public class GooseHeldItemFeatureRenderer extends FeatureRenderer<GooseEntity, GooseModel<GooseEntity>> {
+public class GooseHeldItemFeatureRenderer extends FeatureRenderer<GooseEntity, GooseModel> {
     private final HeldItemRenderer heldItemRenderer;
 
-    public GooseHeldItemFeatureRenderer(FeatureRendererContext<GooseEntity, GooseModel<GooseEntity>> context, HeldItemRenderer heldItemRenderer) {
+    public GooseHeldItemFeatureRenderer(FeatureRendererContext<GooseEntity, GooseModel> context, HeldItemRenderer heldItemRenderer) {
         super(context);
         this.heldItemRenderer = heldItemRenderer;
     }
@@ -31,22 +31,18 @@ public class GooseHeldItemFeatureRenderer extends FeatureRenderer<GooseEntity, G
         matrixStack.push();
 
         matrixStack.translate((this.getContextModel()).head.pivotX / 16.0F + (this.getContextModel()).neck.pivotX / 16.0F, (this.getContextModel()).neck.pivotY / 16.0F, (this.getContextModel()).head.pivotZ / 16.0F + (this.getContextModel()).neck.pivotZ / 16.0F);
-        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(k));
-        matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(l));
 
         ItemStack itemStack = gooseEntity.getEquippedStack(EquipmentSlot.MAINHAND);
         if(itemStack.getItem() instanceof SwordItem || itemStack.getItem() instanceof PickaxeItem || itemStack.getItem() instanceof AxeItem || itemStack.getItem() instanceof ShovelItem || itemStack.getItem() instanceof HoeItem) {
-            matrixStack.translate(-0.1F, -0.4F, -0.2F);
+            matrixStack.translate(-0.1F, 0.65F, 0.25F);
 
             matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90.0F));
             matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(135.0F));
         } else {
-            matrixStack.translate(-0.0F, -0.4F, -0.5F);
+            matrixStack.translate(0.05F, 0.65F, 0.2F);
 
             matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90.0F));
-        }
-        if(gooseEntity.isAttacking()){
-
+            matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0F));
         }
 
         this.heldItemRenderer.renderItem(gooseEntity, itemStack, ModelTransformationMode.GROUND, false, matrixStack, vertexConsumerProvider, i);

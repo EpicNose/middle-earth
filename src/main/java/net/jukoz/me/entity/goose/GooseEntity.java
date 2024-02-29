@@ -6,10 +6,7 @@ import net.jukoz.me.entity.ModEntities;
 import net.jukoz.me.entity.goals.BirdFlightGoal;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.FuzzyTargeting;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
@@ -54,6 +51,8 @@ public class GooseEntity extends AnimalEntity {
     public static final Ingredient BREEDING_INGREDIENT
             = Ingredient.ofItems(Items.GRASS, Items.WHEAT_SEEDS);
     static final Predicate<ItemEntity> PICKABLE_DROP_FILTER;
+
+    public final AnimationState swimmingAnimationState = new AnimationState();
     public float flapProgress;
     public float maxWingDeviation;
     public float prevMaxWingDeviation;
@@ -61,63 +60,36 @@ public class GooseEntity extends AnimalEntity {
     private float flapSpeed = 1.0F;
     private float field_28640 = 1.0F;
 
-    //protected static final ImmutableList<SensorType<? extends Sensor<? super GooseEntity>>> SENSORS;
-    //protected static final ImmutableList MEMORY_MODULES;
-
     public GooseEntity(EntityType<? extends AnimalEntity> entityType, World world) {
         super(entityType, world);
         this.setCanPickUpLoot(true);
     }
-/*
-    protected Brain.Profile<GooseEntity> createBrainProfile() {
-        return Brain.createProfile(MEMORY_MODULES, SENSORS);
-    }
-
-    protected Brain<?> deserializeBrain(Dynamic<?> dynamic) {
-        return GooseBrain.create(this, this.createBrainProfile().deserialize(dynamic));
-    }
-
-    public Brain<GooseEntity> getBrain() {
-        return (Brain<GooseEntity>) super.getBrain();
-    }
-
-    protected void mobTick() {
-        this.getWorld().getProfiler().push("gooseBrain");
-        this.getBrain().tick((ServerWorld)this.getWorld(), this);
-        this.getWorld().getProfiler().pop();
-        this.getWorld().getProfiler().push("gooseActivityUpdate");
-        GooseBrain.updateActivities(this);
-        this.getWorld().getProfiler().pop();
-        super.mobTick();
-    }*/
 
     protected void initGoals() {
         this.goalSelector.add(0, new SwimGoal(this));
 
         this.targetSelector.add(1, new RevengeGoal(this, new Class[0]));
 
-        this.goalSelector.add(2, new MeleeAttackGoal(this, 0.9f, false));
-        this.goalSelector.add(3, new EscapeDangerGoal(this, 1.15));
-        this.goalSelector.add(4, new AnimalMateGoal(this, 1.0));
-        this.goalSelector.add(5, new TemptGoal(this, 1.1, BREEDING_INGREDIENT, false));
+        this.goalSelector.add(2, new MeleeAttackGoal(this, 0.7f, false));
+        this.goalSelector.add(3, new EscapeDangerGoal(this, 0.7f));
+        this.goalSelector.add(4, new AnimalMateGoal(this, 0.6f));
+        this.goalSelector.add(5, new TemptGoal(this, 0.6f, BREEDING_INGREDIENT, false));
 
-        this.goalSelector.add(6, new FollowParentGoal(this, 1.05));
+        this.goalSelector.add(6, new FollowParentGoal(this, 0.6f));
         this.goalSelector.add(7, new GooseEntity.PickupItemGoal());
 
         this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
         this.goalSelector.add(9, new LookAroundGoal(this));
-        this.goalSelector.add(10, new WanderAroundGoal(this, 1.0F));
+        this.goalSelector.add(10, new WanderAroundGoal(this, 0.6f));
 
         this.goalSelector.add(12, new FleeEntityGoal<>(this, WolfEntity.class, 8.0F, 0.9, 1.2));
-
-        //this.goalSelector.add(13, new BirdFlightGoal(this));
     }
 
 
     public static DefaultAttributeContainer.Builder createGooseAttributes() {
         return MobEntity.createMobAttributes()
                 .add(EntityAttributes.GENERIC_MAX_HEALTH, 8.0)
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.4)
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.5)
                 .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 0.75)
                 .add(EntityAttributes.GENERIC_ATTACK_SPEED, 1.0)
                 .add(EntityAttributes.GENERIC_FLYING_SPEED, 0.4000000059604645);
@@ -151,7 +123,7 @@ public class GooseEntity extends AnimalEntity {
         if(!this.isBaby()) {
             Item item = stack.getItem();
             ItemStack itemStack = this.getEquippedStack(EquipmentSlot.MAINHAND);
-            return itemStack.isEmpty();
+            return itemStack.isEmpty() && item != null;
         }
         return false;
     }
@@ -188,6 +160,7 @@ public class GooseEntity extends AnimalEntity {
         super.drop(source);
     }
 
+    /*
     protected EntityNavigation createNavigation(World world) {
         BirdNavigation birdNavigation = new BirdNavigation(this, world);
         birdNavigation.setCanPathThroughDoors(true);
@@ -195,11 +168,27 @@ public class GooseEntity extends AnimalEntity {
         birdNavigation.setCanEnterOpenDoors(true);
         return birdNavigation;
     }
+    */
+
+    protected void setupAnimationStates() {
+        if(this.isSwimming()) {
+            this.swimmingAnimationState.startIfNotRunning(this.age);
+        }
+    }
 
     @Override
     public void tickMovement() {
         super.tickMovement();
         this.flapWings();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if(this.getWorld().isClient) {
+            setupAnimationStates();
+        }
     }
 
     private void flapWings() {
@@ -317,28 +306,5 @@ public class GooseEntity extends AnimalEntity {
         PICKABLE_DROP_FILTER = (item) -> {
             return !item.cannotPickup() && item.isAlive();
         };
-    /*
-        SENSORS = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES,
-                SensorType.HURT_BY,
-                SensorType.IS_IN_WATER);
-
-        MEMORY_MODULES = ImmutableList.of(MemoryModuleType.LOOK_TARGET,
-                MemoryModuleType.MOBS,
-                MemoryModuleType.VISIBLE_MOBS,
-                MemoryModuleType.WALK_TARGET,
-                MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-                MemoryModuleType.PATH,
-                MemoryModuleType.BREED_TARGET,
-                MemoryModuleType.ATTACK_TARGET,
-                MemoryModuleType.TEMPTING_PLAYER,
-                MemoryModuleType.TEMPTATION_COOLDOWN_TICKS,
-                MemoryModuleType.IS_TEMPTED,
-                MemoryModuleType.HURT_BY,
-                MemoryModuleType.HURT_BY_ENTITY,
-                MemoryModuleType.NEAREST_ATTACKABLE,
-                MemoryModuleType.IS_IN_WATER,
-                MemoryModuleType.IS_PANICKING,
-                MemoryModuleType.UNREACHABLE_TONGUE_TARGETS);
-        */
     }
 }

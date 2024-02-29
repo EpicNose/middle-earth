@@ -15,7 +15,7 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.Map;
 
-public class GooseRenderer extends MobEntityRenderer<GooseEntity, GooseModel<GooseEntity>> {
+public class GooseRenderer extends MobEntityRenderer<GooseEntity, GooseModel> {
     private static final String PATH = "textures/entities/goose/";
     private static final float SIZE = 1f;
 
@@ -37,9 +37,9 @@ public class GooseRenderer extends MobEntityRenderer<GooseEntity, GooseModel<Goo
                 resourceLocation.put(GooseVariant.LIGHT_GRAY,
                         PATH + "goose1.png");
                 resourceLocation.put(GooseVariant.GRAY,
-                        PATH + "goose2.png");
+                        PATH + "goose1.png");
                 resourceLocation.put(GooseVariant.WHITE,
-                        PATH + "goose3.png");
+                        PATH + "goose1.png");
             });
 
     public Identifier getTexture(GooseEntity entity) {
