@@ -15,7 +15,7 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.Map;
 
-public class DuckRenderer extends MobEntityRenderer<DuckEntity, DuckModel<DuckEntity>> {
+public class DuckRenderer extends MobEntityRenderer<DuckEntity, DuckModel> {
     private static final String PATH = "textures/entities/duck/";
     private static final float SIZE = 1f;
 
@@ -36,7 +36,7 @@ public class DuckRenderer extends MobEntityRenderer<DuckEntity, DuckModel<DuckEn
                 resourceLocation.put(DuckVariant.GRAY,
                         PATH + "duck1.png");
                 resourceLocation.put(DuckVariant.BROWN,
-                        PATH + "duck2.png");
+                        PATH + "duck1.png");
             });
 
     public Identifier getTexture(DuckEntity entity) {
