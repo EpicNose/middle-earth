@@ -57,6 +57,7 @@ public class DuckFeedGoal extends Goal {
                 --this.feedTime;
                 if(this.feedTime == 0) {
                     bread.getStack().decrement(1);
+                    this.duck.setLoveTicks(600);
                     this.duck.setEating(false);
                     this.duck.setHungryTimeout(this.duck.getRandom().nextInt(200) + 1100);
                 }

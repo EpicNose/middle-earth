@@ -41,9 +41,6 @@ public class DuckEntity extends AnimalEntity {
     public static final TrackedData<Boolean> EATING = DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private int hungryTimeout = 0;
 
-    private static final Ingredient BREEDING_INGREDIENT
-            = Ingredient.ofItems(Items.WHEAT_SEEDS);
-
     public DuckEntity(EntityType<? extends AnimalEntity> entityType, World world) {
         super(entityType, world);
     }
@@ -58,7 +55,7 @@ public class DuckEntity extends AnimalEntity {
         this.goalSelector.add(1, new SwimGoal(this));
         this.goalSelector.add(2, new EscapeDangerGoal(this, 1.15));
         this.goalSelector.add(3, new AnimalMateGoal(this, 1.0));
-        this.goalSelector.add(4, new TemptGoal(this, 1.1, BREEDING_INGREDIENT, false));
+        this.goalSelector.add(4, new TemptGoal(this, 1.1, Ingredient.ofItems(Items.BREAD), false));
         this.goalSelector.add(5, new DuckFeedGoal(this));
         this.goalSelector.add(6, new FollowParentGoal(this, 1.05));
         this.goalSelector.add(7, new WanderAroundGoal(this, 1.0F));
@@ -133,7 +130,7 @@ public class DuckEntity extends AnimalEntity {
     }
 
     public boolean isBreedingItem(ItemStack stack) {
-        return BREEDING_INGREDIENT.test(stack);
+        return false;
     }
 
     public DuckVariant getVariant() {
