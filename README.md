@@ -4,7 +4,12 @@
 <p align="center">https://discord.gg/9yQ7UWkVUz</p>
 <p align="center">Welcome to this open-source project of Middle-earth mod.<br></p>
 
+## 新世代魔戒mod
+
+坐等1.5版本修好加载问题 <br>
+
 ## Current state of the mod
+
 As of now, the mod is in Alpha development stage, meaning this project is still a prototype and it's missing many core features we want to add. <br>
 
 ## Licenses of this project
